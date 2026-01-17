@@ -1,0 +1,21 @@
+[RUN ] Providencia_stuartii
+      genome: /mnt/c/Users/Admin/OneDrive/Desktop/uti-phage/genomes/Providencia_stuartii/ncbi_dataset/data/GCF_035747985.1/GCF_035747985.1_ASM3574798v1_genomic.fna
+Duplicate specification "LOG|log" for option "log"
+Duplicate specification "HTML|html" for option "html"
+Output directory /mnt/c/Users/Admin/OneDrive/Desktop/uti-phage/ccf_out/Providencia_stuartii already exists. Remove the directory before continuing.
+Suggestion:
+rm -rf /mnt/c/Users/Admin/OneDrive/Desktop/uti-phage/ccf_out/Providencia_stuartii/
+################################################################
+# --> Welcome to /mnt/c/Users/Admin/OneDrive/Desktop/uti-phage/tools/CRISPRCasFinder/CRISPRCasFinder.pl (version 4.3.2) 
+################################################################
+
+
+vmatch is...............OK 
+mkvtree is...............OK 
+vsubseqselect is...............OK 
+fuzznuc (from emboss) is...............OK 
+needle (from emboss) is...............OK 
+
+
+[WARN] Providencia_stuartii : result.json not produced (see /mnt/c/Users/Admin/OneDrive/Desktop/uti-phage/ccf_out/Providencia_stuartii/run.log)
+      spacers: (no cache file)

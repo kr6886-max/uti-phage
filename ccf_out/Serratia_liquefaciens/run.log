@@ -1,0 +1,21 @@
+[RUN ] Serratia_liquefaciens
+      genome: /mnt/c/Users/Admin/OneDrive/Desktop/uti-phage/genomes/Serratia_liquefaciens/ncbi_dataset/data/GCF_000422085.1/GCF_000422085.1_ASM42208v1_genomic.fna
+Duplicate specification "LOG|log" for option "log"
+Duplicate specification "HTML|html" for option "html"
+Output directory /mnt/c/Users/Admin/OneDrive/Desktop/uti-phage/ccf_out/Serratia_liquefaciens already exists. Remove the directory before continuing.
+Suggestion:
+rm -rf /mnt/c/Users/Admin/OneDrive/Desktop/uti-phage/ccf_out/Serratia_liquefaciens/
+################################################################
+# --> Welcome to /mnt/c/Users/Admin/OneDrive/Desktop/uti-phage/tools/CRISPRCasFinder/CRISPRCasFinder.pl (version 4.3.2) 
+################################################################
+
+
+vmatch is...............OK 
+mkvtree is...............OK 
+vsubseqselect is...............OK 
+fuzznuc (from emboss) is...............OK 
+needle (from emboss) is...............OK 
+
+
+[WARN] Serratia_liquefaciens : result.json not produced (see /mnt/c/Users/Admin/OneDrive/Desktop/uti-phage/ccf_out/Serratia_liquefaciens/run.log)
+      spacers: (no cache file)

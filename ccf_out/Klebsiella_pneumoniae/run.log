@@ -1,0 +1,21 @@
+[RUN ] Klebsiella_pneumoniae
+      genome: /mnt/c/Users/Admin/OneDrive/Desktop/uti-phage/genomes/Klebsiella_pneumoniae/ncbi_dataset/data/GCF_000240185.1/GCF_000240185.1_ASM24018v2_genomic.fna
+Duplicate specification "LOG|log" for option "log"
+Duplicate specification "HTML|html" for option "html"
+Output directory /mnt/c/Users/Admin/OneDrive/Desktop/uti-phage/ccf_out/Klebsiella_pneumoniae already exists. Remove the directory before continuing.
+Suggestion:
+rm -rf /mnt/c/Users/Admin/OneDrive/Desktop/uti-phage/ccf_out/Klebsiella_pneumoniae/
+################################################################
+# --> Welcome to /mnt/c/Users/Admin/OneDrive/Desktop/uti-phage/tools/CRISPRCasFinder/CRISPRCasFinder.pl (version 4.3.2) 
+################################################################
+
+
+vmatch is...............OK 
+mkvtree is...............OK 
+vsubseqselect is...............OK 
+fuzznuc (from emboss) is...............OK 
+needle (from emboss) is...............OK 
+
+
+[WARN] Klebsiella_pneumoniae : result.json not produced (see /mnt/c/Users/Admin/OneDrive/Desktop/uti-phage/ccf_out/Klebsiella_pneumoniae/run.log)
+      spacers: 124

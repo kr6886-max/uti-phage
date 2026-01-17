@@ -1,0 +1,21 @@
+[RUN ] Enterobacter_cloacae
+      genome: /mnt/c/Users/Admin/OneDrive/Desktop/uti-phage/genomes/Enterobacter_cloacae/ncbi_dataset/data/GCF_905331265.2/GCF_905331265.2_AI2999v1_cpp_genomic.fna
+Duplicate specification "LOG|log" for option "log"
+Duplicate specification "HTML|html" for option "html"
+Output directory /mnt/c/Users/Admin/OneDrive/Desktop/uti-phage/ccf_out/Enterobacter_cloacae already exists. Remove the directory before continuing.
+Suggestion:
+rm -rf /mnt/c/Users/Admin/OneDrive/Desktop/uti-phage/ccf_out/Enterobacter_cloacae/
+################################################################
+# --> Welcome to /mnt/c/Users/Admin/OneDrive/Desktop/uti-phage/tools/CRISPRCasFinder/CRISPRCasFinder.pl (version 4.3.2) 
+################################################################
+
+
+vmatch is...............OK 
+mkvtree is...............OK 
+vsubseqselect is...............OK 
+fuzznuc (from emboss) is...............OK 
+needle (from emboss) is...............OK 
+
+
+[WARN] Enterobacter_cloacae : result.json not produced (see /mnt/c/Users/Admin/OneDrive/Desktop/uti-phage/ccf_out/Enterobacter_cloacae/run.log)
+      spacers: (no cache file)

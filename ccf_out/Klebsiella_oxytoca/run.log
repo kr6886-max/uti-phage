@@ -1,0 +1,21 @@
+[RUN ] Klebsiella_oxytoca
+      genome: /mnt/c/Users/Admin/OneDrive/Desktop/uti-phage/genomes/Klebsiella_oxytoca/ncbi_dataset/data/GCF_900636985.1/GCF_900636985.1_45889_C01_genomic.fna
+Duplicate specification "LOG|log" for option "log"
+Duplicate specification "HTML|html" for option "html"
+Output directory /mnt/c/Users/Admin/OneDrive/Desktop/uti-phage/ccf_out/Klebsiella_oxytoca already exists. Remove the directory before continuing.
+Suggestion:
+rm -rf /mnt/c/Users/Admin/OneDrive/Desktop/uti-phage/ccf_out/Klebsiella_oxytoca/
+################################################################
+# --> Welcome to /mnt/c/Users/Admin/OneDrive/Desktop/uti-phage/tools/CRISPRCasFinder/CRISPRCasFinder.pl (version 4.3.2) 
+################################################################
+
+
+vmatch is...............OK 
+mkvtree is...............OK 
+vsubseqselect is...............OK 
+fuzznuc (from emboss) is...............OK 
+needle (from emboss) is...............OK 
+
+
+[WARN] Klebsiella_oxytoca : result.json not produced (see /mnt/c/Users/Admin/OneDrive/Desktop/uti-phage/ccf_out/Klebsiella_oxytoca/run.log)
+      spacers: (no cache file)

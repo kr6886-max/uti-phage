@@ -1,0 +1,21 @@
+[RUN ] Mycoplasma_hominis
+      genome: /mnt/c/Users/Admin/OneDrive/Desktop/uti-phage/genomes/Mycoplasma_hominis/ncbi_dataset/data/GCF_000767725.1/GCF_000767725.1_ASM76772v1_genomic.fna
+Duplicate specification "LOG|log" for option "log"
+Duplicate specification "HTML|html" for option "html"
+Output directory /mnt/c/Users/Admin/OneDrive/Desktop/uti-phage/ccf_out/Mycoplasma_hominis already exists. Remove the directory before continuing.
+Suggestion:
+rm -rf /mnt/c/Users/Admin/OneDrive/Desktop/uti-phage/ccf_out/Mycoplasma_hominis/
+################################################################
+# --> Welcome to /mnt/c/Users/Admin/OneDrive/Desktop/uti-phage/tools/CRISPRCasFinder/CRISPRCasFinder.pl (version 4.3.2) 
+################################################################
+
+
+vmatch is...............OK 
+mkvtree is...............OK 
+vsubseqselect is...............OK 
+fuzznuc (from emboss) is...............OK 
+needle (from emboss) is...............OK 
+
+
+[WARN] Mycoplasma_hominis : result.json not produced (see /mnt/c/Users/Admin/OneDrive/Desktop/uti-phage/ccf_out/Mycoplasma_hominis/run.log)
+      spacers: (no cache file)

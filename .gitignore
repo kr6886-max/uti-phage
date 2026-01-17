@@ -1,0 +1,19 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# Large / generated data (do not push)
+genomes/
+phage_genomes/
+ccf_out/
+data/crispr_cache/
+data/*.csv
+data/*.tsv
+
+# CRISPRCasFinder tool folder (nested repo)
+tools/CRISPRCasFinder/
+
+# OS
+.DS_Store
+Thumbs.db

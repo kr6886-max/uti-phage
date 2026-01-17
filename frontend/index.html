@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>UTI Bacteria → Best Phage Finder</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; background:#f6f8fb; }
+    .card { background:#fff; padding:20px; border-radius:12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); max-width: 1200px; margin:auto; }
+    h1 { color:#2c3e50; margin:0 0 10px; font-size:26px; }
+    .row { display:flex; gap:16px; align-items:center; flex-wrap:wrap; }
+    label { font-weight:600; }
+    select, button { padding:10px; font-size:16px; margin-top:10px; }
+    button { cursor:pointer; }
+    .note { color:#555; font-size:13px; margin-top:10px; }
+    .error { color:#b00020; margin-top:12px; font-weight:600; }
+
+    table { margin-top:18px; width:100%; border-collapse:collapse; }
+    th, td { border:1px solid #ddd; padding:10px; text-align:center; }
+    th { background:#2c3e50; color:#fff; }
+    tr.best { background:#e8fff0; font-weight:700; }
+
+    .panes { display:flex; gap:18px; flex-wrap:wrap; margin-top:18px; }
+    .panel { flex: 1 1 560px; background:#fff; border:1px solid #e6e8ef; border-radius:12px; padding:14px; }
+    .panel h3 { margin:0 0 10px; color:#2c3e50; font-size:16px; }
+    canvas { width:100%; height:320px; border-radius:10px; background:#fbfcff; border:1px solid #eef0f7; }
+
+    .matrix { display:grid; gap:2px; background:#e5e7eb; padding:6px; border-radius:12px; overflow:auto; max-width:100%; }
+    .cell { height:34px; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; border-radius:6px; background:#fff; color:#0b1220; }
+    .head { background:#1f2937!important; color:#fff!important; font-weight:800; }
+    .rowhead { width:260px!important; justify-content:flex-start; padding-left:8px; background:#111827!important; color:#fff!important; font-weight:800; }
+
+    .legend { display:flex; align-items:center; gap:10px; margin-top:10px; font-size:12px; color:#111827; }
+    .legendbar { width:240px; height:12px; border-radius:999px; border:1px solid rgba(0,0,0,0.15);
+      background: linear-gradient(90deg, #7f1d1d, #f59e0b, #bbf7d0, #16a34a);
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>🧬 UTI Bacteria → Best Phage Finder</h1>
+
+    <div class="row">
+      <div>
+        <label>Select Bacteria:</label><br>
+        <select id="bacteria"></select>
+      </div>
+
+      <div>
+        <label>CRISPR mismatches (≤):</label><br>
+        <select id="mm">
+          <option value="0">0 (exact)</option>
+          <option value="1">1</option>
+          <option value="2" selected>2</option>
+          <option value="3">3</option>
+        </select>
+      </div>
+
+      <div style="padding-top:20px;">
+        <button id="btn">Find Best Phage</button>
+      </div>
+    </div>
+
+    <div id="status" class="note"></div>
+    <div id="err" class="error" style="display:none;"></div>
+
+    <table id="table" style="display:none;">
+      <thead>
+        <tr>
+          <th>Rank</th><th>Phage ID</th><th>Similarity</th><th>CRISPR</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+
+    <div class="panes" id="panes" style="display:none;">
+      <div class="panel">
+        <h3>📊 Similarity Bar Chart</h3>
+        <canvas id="bar" width="900" height="360"></canvas>
+      </div>
+
+      <div class="panel">
+        <h3>🧫 Matrix Heatmap</h3>
+        <div id="matrixWrap"></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const API = ""; // same-origin
+  const sel = document.getElementById("bacteria");
+  const mmSel = document.getElementById("mm");
+  const btn = document.getElementById("btn");
+  const statusBox = document.getElementById("status");
+  const errBox = document.getElementById("err");
+
+  const table = document.getElementById("table");
+  const tbody = document.getElementById("tbody");
+  const panes = document.getElementById("panes");
+  const bar = document.getElementById("bar");
+  const matrixWrap = document.getElementById("matrixWrap");
+
+  function showErr(msg){ errBox.style.display="block"; errBox.textContent=msg; }
+  function clearErr(){ errBox.style.display="none"; errBox.textContent=""; }
+
+  async function loadBacteria(){
+    const r = await fetch(API + "/bacteria");
+    const j = await r.json();
+    sel.innerHTML="";
+    j.bacteria.forEach(b=>{
+      const o=document.createElement("option");
+      o.value=b; o.textContent=b;
+      sel.appendChild(o);
+    });
+    statusBox.textContent = "Ready.";
+  }
+
+  function drawBarChart(values){
+    const ctx = bar.getContext("2d");
+    const W=bar.width, H=bar.height;
+    ctx.clearRect(0,0,W,H);
+
+    const padL=60,padR=20,padT=20,padB=60;
+    const plotW=W-padL-padR, plotH=H-padT-padB;
+
+    ctx.strokeStyle="#1f2937"; ctx.lineWidth=2;
+    ctx.beginPath();
+    ctx.moveTo(padL,padT);
+    ctx.lineTo(padL,padT+plotH);
+    ctx.lineTo(padL+plotW,padT+plotH);
+    ctx.stroke();
+
+    const maxV=Math.max(...values), minV=Math.min(...values);
+    const range=(maxV-minV)||1;
+
+    ctx.font="12px Arial";
+    for(let t=0;t<=4;t++){
+      const v=minV+(range*(t/4));
+      const y=padT+plotH-(plotH*(t/4));
+      ctx.strokeStyle="#e5e7eb"; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(padL+plotW,y); ctx.stroke();
+      ctx.fillStyle="#111827"; ctx.fillText(v.toFixed(3),10,y+4);
+    }
+
+    const n=values.length, gap=10;
+    const barW=(plotW-gap*(n-1))/n;
+
+    for(let i=0;i<n;i++){
+      const v=values[i];
+      const h=((v-minV)/range)*plotH;
+      const x=padL+i*(barW+gap);
+      const y=padT+plotH-h;
+
+      ctx.fillStyle=(i===0)?"#22c55e":"#3b82f6";
+      ctx.fillRect(x,y,barW,h);
+
+      ctx.fillStyle="#111827"; ctx.textAlign="center";
+      ctx.fillText(v.toFixed(3), x+barW/2, y-6);
+
+      ctx.save();
+      ctx.translate(x+barW/2, padT+plotH+20);
+      ctx.rotate(-0.6);
+      ctx.fillText(`#${i+1}`,0,0);
+      ctx.restore();
+    }
+  }
+
+  function clamp01(x){ return Math.max(0, Math.min(1, x)); }
+  function colorFor01(t){
+    t=clamp01(t);
+    const r=Math.round(230-120*t);
+    const g=Math.round(70+160*t);
+    const b=Math.round(80-40*t);
+    return `rgb(${r},${g},${b})`;
+  }
+  function scale(v,a,b){ if(b-a===0) return 0.5; return (v-a)/(b-a); }
+
+  function renderMatrix(rows, crisprResults){
+    matrixWrap.innerHTML="";
+    const cols=["Similarity","CRISPR hits","Spacers"];
+
+    const sims=rows.map(r=>Number(r.similarity));
+    const simMin=Math.min(...sims), simMax=Math.max(...sims);
+
+    const hits=rows.map(r=>(crisprResults[r.phage_id]?.matches_found ?? 0));
+    const hitMin=Math.min(...hits), hitMax=Math.max(...hits);
+
+    const spfs=rows.map(r=>(crisprResults[r.phage_id]?.spacers_found ?? 0));
+    const spMin=Math.min(...spfs), spMax=Math.max(...spfs);
+
+    const grid=document.createElement("div");
+    grid.className="matrix";
+    grid.style.gridTemplateColumns=`260px repeat(${cols.length}, 120px)`;
+
+    const h0=document.createElement("div");
+    h0.className="cell head rowhead"; h0.textContent="Phage";
+    grid.appendChild(h0);
+    cols.forEach(c=>{
+      const h=document.createElement("div");
+      h.className="cell head"; h.textContent=c;
+      grid.appendChild(h);
+    });
+
+    rows.forEach((r,idx)=>{
+      const rh=document.createElement("div");
+      rh.className="cell rowhead";
+      rh.textContent=`#${idx+1}  ${r.phage_id}`;
+      grid.appendChild(rh);
+
+      const s=Number(r.similarity);
+      const c1=document.createElement("div");
+      c1.className="cell"; c1.style.background=colorFor01(scale(s,simMin,simMax));
+      c1.textContent=s.toFixed(4);
+      grid.appendChild(c1);
+
+      const h=(crisprResults[r.phage_id]?.matches_found ?? 0);
+      const c2=document.createElement("div");
+      c2.className="cell"; c2.style.background=colorFor01(scale(h,hitMin,hitMax));
+      c2.textContent=`${h}`;
+      grid.appendChild(c2);
+
+      const sp=(crisprResults[r.phage_id]?.spacers_found ?? 0);
+      const c3=document.createElement("div");
+      c3.className="cell"; c3.style.background=colorFor01(scale(sp,spMin,spMax));
+      c3.textContent=`${sp}`;
+      grid.appendChild(c3);
+    });
+
+    matrixWrap.appendChild(grid);
+
+    const legend=document.createElement("div");
+    legend.className="legend";
+    legend.innerHTML=`<div><b>Low</b></div><div class="legendbar"></div><div><b>High</b></div>`;
+    matrixWrap.appendChild(legend);
+  }
+
+  async function run(){
+    clearErr();
+    const bacteria = sel.value;
+    const maxMm = parseInt(mmSel.value||"2",10);
+
+    statusBox.textContent = "Running prediction + CRISPR…";
+    table.style.display="none"; panes.style.display="none";
+    tbody.innerHTML=""; matrixWrap.innerHTML="";
+
+    try{
+      const pr = await fetch(`${API}/predict?bacteria=${encodeURIComponent(bacteria)}&topk=10`);
+      const pj = await pr.json();
+      const rows = pj.results;
+
+      if(!rows || rows.length===0){ showErr("No prediction results."); return; }
+
+      rows.forEach((r,i)=>{
+        const tr=document.createElement("tr");
+        if(i===0) tr.className="best";
+        tr.innerHTML=`<td>${i+1}</td><td>${r.phage_id}</td><td>${Number(r.similarity).toFixed(4)}</td><td id="c${i}">Checking…</td>`;
+        tbody.appendChild(tr);
+      });
+      table.style.display="table";
+      panes.style.display="flex";
+      drawBarChart(rows.map(r=>Number(r.similarity)));
+
+      const ids = rows.map(r=>r.phage_id).join(",");
+      const cr = await fetch(`${API}/crispr_check_batch?bacteria=${encodeURIComponent(bacteria)}&phage_ids=${encodeURIComponent(ids)}&max_mm=${maxMm}`);
+      const cj = await cr.json();
+
+      if(cj.ok && cj.status === "no_cache"){
+        statusBox.textContent = "CRISPRCasFinder: not processed or no output for this bacteria.";
+        rows.forEach((_,i)=>{ document.getElementById(`c${i}`).textContent = "Not processed"; });
+        renderMatrix(rows, {});
+        return;
+      }
+
+      if(cj.ok && cj.status === "no_spacers"){
+        statusBox.textContent = "CRISPRCasFinder: no spacers detected for this bacteria.";
+        rows.forEach((_,i)=>{ document.getElementById(`c${i}`).textContent = "No spacers"; });
+        renderMatrix(rows, {});
+        return;
+      }
+
+      if(!cj.ok){
+        statusBox.textContent = "CRISPR check failed (server).";
+        rows.forEach((_,i)=>{ document.getElementById(`c${i}`).textContent = "N/A"; });
+        renderMatrix(rows, {});
+        return;
+      }
+
+      const results = cj.results || {};
+      statusBox.textContent = `Done. Top 10 phages for ${bacteria} (CRISPR checked).`;
+
+      rows.forEach((r,i)=>{
+        const cell = document.getElementById(`c${i}`);
+        const info = results[r.phage_id];
+        if(!info || !info.ok){ cell.textContent="N/A"; return; }
+        if(info.spacers_found === 0){ cell.textContent="No spacers"; }
+        else if(info.match){ cell.textContent = `Match ✅ (hits=${info.matches_found})`; }
+        else { cell.textContent = `No match ❌ (hits=${info.matches_found})`; }
+      });
+
+      renderMatrix(rows, results);
+
+    } catch(e){
+      console.error(e);
+      showErr("Something failed. Check backend is running.");
+      statusBox.textContent = "";
+    }
+  }
+
+  btn.addEventListener("click", run);
+  loadBacteria();
+</script>
+</body>
+</html>

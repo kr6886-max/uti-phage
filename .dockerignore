@@ -1,0 +1,8 @@
+venv/
+__pycache__/
+*.pyc
+.git/
+*.log
+ccf_out/
+tools/CRISPRCasFinder/test_out/
+tools/CRISPRCasFinder/ecoli_real/

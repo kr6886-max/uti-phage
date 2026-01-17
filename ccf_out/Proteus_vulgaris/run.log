@@ -1,0 +1,21 @@
+[RUN ] Proteus_vulgaris
+      genome: /mnt/c/Users/Admin/OneDrive/Desktop/uti-phage/genomes/Proteus_vulgaris/ncbi_dataset/data/GCF_025200655.1/GCF_025200655.1_ASM2520065v1_genomic.fna
+Duplicate specification "LOG|log" for option "log"
+Duplicate specification "HTML|html" for option "html"
+Output directory /mnt/c/Users/Admin/OneDrive/Desktop/uti-phage/ccf_out/Proteus_vulgaris already exists. Remove the directory before continuing.
+Suggestion:
+rm -rf /mnt/c/Users/Admin/OneDrive/Desktop/uti-phage/ccf_out/Proteus_vulgaris/
+################################################################
+# --> Welcome to /mnt/c/Users/Admin/OneDrive/Desktop/uti-phage/tools/CRISPRCasFinder/CRISPRCasFinder.pl (version 4.3.2) 
+################################################################
+
+
+vmatch is...............OK 
+mkvtree is...............OK 
+vsubseqselect is...............OK 
+fuzznuc (from emboss) is...............OK 
+needle (from emboss) is...............OK 
+
+
+[WARN] Proteus_vulgaris : result.json not produced (see /mnt/c/Users/Admin/OneDrive/Desktop/uti-phage/ccf_out/Proteus_vulgaris/run.log)
+      spacers: (no cache file)

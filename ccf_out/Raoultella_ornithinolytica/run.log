@@ -1,0 +1,21 @@
+[RUN ] Raoultella_ornithinolytica
+      genome: /mnt/c/Users/Admin/OneDrive/Desktop/uti-phage/genomes/Raoultella_ornithinolytica/ncbi_dataset/data/GCF_030505655.1/GCF_030505655.1_ASM3050565v1_genomic.fna
+Duplicate specification "LOG|log" for option "log"
+Duplicate specification "HTML|html" for option "html"
+Output directory /mnt/c/Users/Admin/OneDrive/Desktop/uti-phage/ccf_out/Raoultella_ornithinolytica already exists. Remove the directory before continuing.
+Suggestion:
+rm -rf /mnt/c/Users/Admin/OneDrive/Desktop/uti-phage/ccf_out/Raoultella_ornithinolytica/
+################################################################
+# --> Welcome to /mnt/c/Users/Admin/OneDrive/Desktop/uti-phage/tools/CRISPRCasFinder/CRISPRCasFinder.pl (version 4.3.2) 
+################################################################
+
+
+vmatch is...............OK 
+mkvtree is...............OK 
+vsubseqselect is...............OK 
+fuzznuc (from emboss) is...............OK 
+needle (from emboss) is...............OK 
+
+
+[WARN] Raoultella_ornithinolytica : result.json not produced (see /mnt/c/Users/Admin/OneDrive/Desktop/uti-phage/ccf_out/Raoultella_ornithinolytica/run.log)
+      spacers: (no cache file)

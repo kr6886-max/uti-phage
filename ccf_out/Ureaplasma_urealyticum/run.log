@@ -1,0 +1,21 @@
+[RUN ] Ureaplasma_urealyticum
+      genome: /mnt/c/Users/Admin/OneDrive/Desktop/uti-phage/genomes/Ureaplasma_urealyticum/ncbi_dataset/data/GCF_000169535.1/GCF_000169535.1_ASM16953v1_genomic.fna
+Duplicate specification "LOG|log" for option "log"
+Duplicate specification "HTML|html" for option "html"
+Output directory /mnt/c/Users/Admin/OneDrive/Desktop/uti-phage/ccf_out/Ureaplasma_urealyticum already exists. Remove the directory before continuing.
+Suggestion:
+rm -rf /mnt/c/Users/Admin/OneDrive/Desktop/uti-phage/ccf_out/Ureaplasma_urealyticum/
+################################################################
+# --> Welcome to /mnt/c/Users/Admin/OneDrive/Desktop/uti-phage/tools/CRISPRCasFinder/CRISPRCasFinder.pl (version 4.3.2) 
+################################################################
+
+
+vmatch is...............OK 
+mkvtree is...............OK 
+vsubseqselect is...............OK 
+fuzznuc (from emboss) is...............OK 
+needle (from emboss) is...............OK 
+
+
+[WARN] Ureaplasma_urealyticum : result.json not produced (see /mnt/c/Users/Admin/OneDrive/Desktop/uti-phage/ccf_out/Ureaplasma_urealyticum/run.log)
+      spacers: 0

@@ -1,0 +1,21 @@
+[RUN ] Ureaplasma_parvum
+      genome: /mnt/c/Users/Admin/OneDrive/Desktop/uti-phage/genomes/Ureaplasma_parvum/ncbi_dataset/data/GCF_000019345.1/GCF_000019345.1_ASM1934v1_genomic.fna
+Duplicate specification "LOG|log" for option "log"
+Duplicate specification "HTML|html" for option "html"
+Output directory /mnt/c/Users/Admin/OneDrive/Desktop/uti-phage/ccf_out/Ureaplasma_parvum already exists. Remove the directory before continuing.
+Suggestion:
+rm -rf /mnt/c/Users/Admin/OneDrive/Desktop/uti-phage/ccf_out/Ureaplasma_parvum/
+################################################################
+# --> Welcome to /mnt/c/Users/Admin/OneDrive/Desktop/uti-phage/tools/CRISPRCasFinder/CRISPRCasFinder.pl (version 4.3.2) 
+################################################################
+
+
+vmatch is...............OK 
+mkvtree is...............OK 
+vsubseqselect is...............OK 
+fuzznuc (from emboss) is...............OK 
+needle (from emboss) is...............OK 
+
+
+[WARN] Ureaplasma_parvum : result.json not produced (see /mnt/c/Users/Admin/OneDrive/Desktop/uti-phage/ccf_out/Ureaplasma_parvum/run.log)
+      spacers: 0

@@ -1,0 +1,21 @@
+[RUN ] Klebsiella_aerogenes
+      genome: /mnt/c/Users/Admin/OneDrive/Desktop/uti-phage/genomes/Klebsiella_aerogenes/ncbi_dataset/data/GCF_019048125.1/GCF_019048125.1_ASM1904812v1_genomic.fna
+Duplicate specification "LOG|log" for option "log"
+Duplicate specification "HTML|html" for option "html"
+Output directory /mnt/c/Users/Admin/OneDrive/Desktop/uti-phage/ccf_out/Klebsiella_aerogenes already exists. Remove the directory before continuing.
+Suggestion:
+rm -rf /mnt/c/Users/Admin/OneDrive/Desktop/uti-phage/ccf_out/Klebsiella_aerogenes/
+################################################################
+# --> Welcome to /mnt/c/Users/Admin/OneDrive/Desktop/uti-phage/tools/CRISPRCasFinder/CRISPRCasFinder.pl (version 4.3.2) 
+################################################################
+
+
+vmatch is...............OK 
+mkvtree is...............OK 
+vsubseqselect is...............OK 
+fuzznuc (from emboss) is...............OK 
+needle (from emboss) is...............OK 
+
+
+[WARN] Klebsiella_aerogenes : result.json not produced (see /mnt/c/Users/Admin/OneDrive/Desktop/uti-phage/ccf_out/Klebsiella_aerogenes/run.log)
+      spacers: 300
