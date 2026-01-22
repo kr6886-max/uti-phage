@@ -4,3 +4,4 @@ gunicorn==22.0.0
 pandas==2.3.3
 numpy==2.4.1
 biopython==1.86
+macsyfinder
