@@ -2,15 +2,12 @@ import subprocess
 import uuid
 import shutil
 from pathlib import Path
+import os
 
 BASE_DIR = Path("/tmp/casfinder_jobs")
 
 
 def run_cmd(cmd: list[str]) -> tuple[str, str]:
-    """
-    Runs a command and returns (stdout, stderr).
-    Raises RuntimeError with full details if it fails.
-    """
     p = subprocess.run(cmd, capture_output=True, text=True)
     if p.returncode != 0:
         raise RuntimeError(
@@ -25,14 +22,6 @@ def run_cmd(cmd: list[str]) -> tuple[str, str]:
 
 
 def run_casfinder(fasta_path: str) -> dict:
-    """
-    Pipeline:
-      1) Prodigal: genome -> proteins
-      2) MacSyFinder (CasFinder models): proteins -> cas system hits
-
-    Returns:
-      job_id + output_files (relative paths inside output folder)
-    """
     job_id = str(uuid.uuid4())
     job_dir = BASE_DIR / job_id
     job_dir.mkdir(parents=True, exist_ok=True)
@@ -42,7 +31,7 @@ def run_casfinder(fasta_path: str) -> dict:
 
     proteins = job_dir / "proteins.faa"
 
-    # 1) Prodigal (bacterial genome -> proteins)
+    # 1) Prodigal: genome -> proteins
     run_cmd([
         "prodigal",
         "-i", str(genome),
@@ -50,16 +39,18 @@ def run_casfinder(fasta_path: str) -> dict:
         "-p", "single",
     ])
 
-    # 2) MacSyFinder CasFinder
+    # 2) MacSyFinder: run CasFinder models
     out_dir = job_dir / "macsyfinder_out"
     out_dir.mkdir(exist_ok=True)
 
-    # IMPORTANT:
-    # Your MacSyFinder CLI (from logs) DOES NOT support "macsyfinder run"
-    # so we call it directly without "run".
+    models_dir = os.environ.get("MACSY_MODELS_DIR", "/usr/local/share/macsyfinder/models")
+
+    # We set models_dir in Dockerfile and copied CasFinder models there.
+    # Use model NAME, not path.
     run_cmd([
         "macsyfinder",
-        "--models", "/opt/casfinder-models",
+        "--models", "CasFinder",
+        "--models-dir", models_dir,
         "--sequence-db", str(proteins),
         "--out-dir", str(out_dir),
         "--db-type", "gembase",
@@ -67,3 +58,4 @@ def run_casfinder(fasta_path: str) -> dict:
 
     files = [str(p.relative_to(out_dir)) for p in out_dir.rglob("*") if p.is_file()]
     return {"job_id": job_id, "output_files": files}
+
