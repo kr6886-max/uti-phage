@@ -34,13 +34,13 @@ def run_casfinder(fasta_path: str):
     out_dir = job_dir / "macsyfinder_out"
     out_dir.mkdir(exist_ok=True)
 
-    run_cmd([
-        "macsyfinder", "run",
-        "--models", "/opt/casfinder-models",
-        "--sequence-db", str(proteins),
-        "--out-dir", str(out_dir),
-        "--db-type", "gembase"
-    ])
+   run_cmd([
+    "macsyfinder",
+    "--models", "/opt/casfinder-models",
+    "--sequence-db", str(proteins),
+    "--out-dir", str(out_dir),
+    "--db-type", "gembase"
+])
 
     files = [str(p.relative_to(out_dir)) for p in out_dir.rglob("*") if p.is_file()]
     return {
