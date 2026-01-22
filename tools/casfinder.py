@@ -39,23 +39,20 @@ def run_casfinder(fasta_path: str) -> dict:
         "-p", "single",
     ])
 
-    # 2) MacSyFinder output folder MUST be empty/new
-    out_dir = job_dir / f"macsyfinder_out_{uuid.uuid4().hex}"
-    out_dir.mkdir(parents=True, exist_ok=False)  # must be new/empty
+    # 2) IMPORTANT: always use a NEW empty output folder
+    out_dir = job_dir / f"macsy_out_{uuid.uuid4().hex}"
+    out_dir.mkdir(parents=True, exist_ok=False)
 
-    # Models directory (try preferred, else fallback to clone)
+    # Models dir (use copied dir if present, otherwise fallback to clone)
     preferred_models_dir = os.environ.get("MACSY_MODELS_DIR", "/usr/local/share/macsyfinder/models")
-    preferred = Path(preferred_models_dir)
-    if preferred.exists() and any(preferred.iterdir()):
-        models_dir = str(preferred)
+    if Path(preferred_models_dir).exists() and any(Path(preferred_models_dir).iterdir()):
+        models_dir = preferred_models_dir
     else:
         models_dir = "/opt/casfinder-models"
 
     # Try common model names
-    model_names = ["CasFinder", "casfinder"]
-
     last_error = None
-    for model_name in model_names:
+    for model_name in ("CasFinder", "casfinder"):
         try:
             run_cmd([
                 "macsyfinder",
@@ -68,7 +65,6 @@ def run_casfinder(fasta_path: str) -> dict:
             files = [str(p.relative_to(out_dir)) for p in out_dir.rglob("*") if p.is_file()]
             return {
                 "job_id": job_id,
-                "output_dir": str(out_dir),
                 "output_files": files,
                 "models_dir_used": models_dir,
                 "model_used": model_name,
@@ -77,3 +73,4 @@ def run_casfinder(fasta_path: str) -> dict:
             last_error = e
 
     raise RuntimeError(f"MacSyFinder failed. Last error:\n{last_error}")
+
