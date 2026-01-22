@@ -1,8 +1,8 @@
+import os
+import shutil
 import subprocess
 import uuid
-import shutil
 from pathlib import Path
-import os
 
 BASE_DIR = Path("/tmp/casfinder_jobs")
 
@@ -39,23 +39,43 @@ def run_casfinder(fasta_path: str) -> dict:
         "-p", "single",
     ])
 
-    # 2) MacSyFinder: run CasFinder models
+    # 2) MacSyFinder: CasFinder models
     out_dir = job_dir / "macsyfinder_out"
     out_dir.mkdir(exist_ok=True)
 
-    models_dir = os.environ.get("MACSY_MODELS_DIR", "/usr/local/share/macsyfinder/models")
+    # Preferred models dir (what we aimed to create in Dockerfile)
+    preferred_models_dir = os.environ.get("MACSY_MODELS_DIR", "/usr/local/share/macsyfinder/models")
+    Path(preferred_models_dir).mkdir(parents=True, exist_ok=True)  # prevents FileNotFoundError
 
-    # We set models_dir in Dockerfile and copied CasFinder models there.
-    # Use model NAME, not path.
-    run_cmd([
-        "macsyfinder",
-        "--models", "CasFinder",
-        "--models-dir", models_dir,
-        "--sequence-db", str(proteins),
-        "--out-dir", str(out_dir),
-        "--db-type", "gembase",
-    ])
+    # We will try these model directories in order:
+    # 1) preferred_models_dir (copied models)
+    # 2) /opt/casfinder-models (git clone location)
+    model_dirs_to_try = [
+        preferred_models_dir,
+        "/opt/casfinder-models",
+    ]
 
-    files = [str(p.relative_to(out_dir)) for p in out_dir.rglob("*") if p.is_file()]
-    return {"job_id": job_id, "output_files": files}
+    # Model name sometimes appears as CasFinder or casfinder depending on install
+    model_names_to_try = ["CasFinder", "casfinder"]
+
+    last_error = None
+    for mdir in model_dirs_to_try:
+        for mname in model_names_to_try:
+            try:
+                run_cmd([
+                    "macsyfinder",
+                    "--models", mname,
+                    "--models-dir", mdir,
+                    "--sequence-db", str(proteins),
+                    "--out-dir", str(out_dir),
+                    "--db-type", "gembase",
+                ])
+                # success -> return outputs
+                files = [str(p.relative_to(out_dir)) for p in out_dir.rglob("*") if p.is_file()]
+                return {"job_id": job_id, "output_files": files, "models_dir_used": mdir, "model_used": mname}
+            except Exception as e:
+                last_error = e
+
+    # If all attempts failed, raise the last error (shows real message in Swagger because app.py uses HTTPException(detail=...))
+    raise RuntimeError(f"MacSyFinder failed for all model options. Last error:\n{last_error}")
 
