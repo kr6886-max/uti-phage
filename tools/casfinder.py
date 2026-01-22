@@ -39,43 +39,41 @@ def run_casfinder(fasta_path: str) -> dict:
         "-p", "single",
     ])
 
-    # 2) MacSyFinder: CasFinder models
-    out_dir = job_dir / "macsyfinder_out"
-    out_dir.mkdir(exist_ok=True)
+    # 2) MacSyFinder output folder MUST be empty/new
+    out_dir = job_dir / f"macsyfinder_out_{uuid.uuid4().hex}"
+    out_dir.mkdir(parents=True, exist_ok=False)  # must be new/empty
 
-    # Preferred models dir (what we aimed to create in Dockerfile)
+    # Models directory (try preferred, else fallback to clone)
     preferred_models_dir = os.environ.get("MACSY_MODELS_DIR", "/usr/local/share/macsyfinder/models")
-    Path(preferred_models_dir).mkdir(parents=True, exist_ok=True)  # prevents FileNotFoundError
+    preferred = Path(preferred_models_dir)
+    if preferred.exists() and any(preferred.iterdir()):
+        models_dir = str(preferred)
+    else:
+        models_dir = "/opt/casfinder-models"
 
-    # We will try these model directories in order:
-    # 1) preferred_models_dir (copied models)
-    # 2) /opt/casfinder-models (git clone location)
-    model_dirs_to_try = [
-        preferred_models_dir,
-        "/opt/casfinder-models",
-    ]
-
-    # Model name sometimes appears as CasFinder or casfinder depending on install
-    model_names_to_try = ["CasFinder", "casfinder"]
+    # Try common model names
+    model_names = ["CasFinder", "casfinder"]
 
     last_error = None
-    for mdir in model_dirs_to_try:
-        for mname in model_names_to_try:
-            try:
-                run_cmd([
-                    "macsyfinder",
-                    "--models", mname,
-                    "--models-dir", mdir,
-                    "--sequence-db", str(proteins),
-                    "--out-dir", str(out_dir),
-                    "--db-type", "gembase",
-                ])
-                # success -> return outputs
-                files = [str(p.relative_to(out_dir)) for p in out_dir.rglob("*") if p.is_file()]
-                return {"job_id": job_id, "output_files": files, "models_dir_used": mdir, "model_used": mname}
-            except Exception as e:
-                last_error = e
+    for model_name in model_names:
+        try:
+            run_cmd([
+                "macsyfinder",
+                "--models", model_name,
+                "--models-dir", models_dir,
+                "--sequence-db", str(proteins),
+                "--out-dir", str(out_dir),
+                "--db-type", "gembase",
+            ])
+            files = [str(p.relative_to(out_dir)) for p in out_dir.rglob("*") if p.is_file()]
+            return {
+                "job_id": job_id,
+                "output_dir": str(out_dir),
+                "output_files": files,
+                "models_dir_used": models_dir,
+                "model_used": model_name,
+            }
+        except Exception as e:
+            last_error = e
 
-    # If all attempts failed, raise the last error (shows real message in Swagger because app.py uses HTTPException(detail=...))
-    raise RuntimeError(f"MacSyFinder failed for all model options. Last error:\n{last_error}")
-
+    raise RuntimeError(f"MacSyFinder failed. Last error:\n{last_error}")
