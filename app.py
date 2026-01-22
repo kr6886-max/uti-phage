@@ -1,3 +1,9 @@
+from fastapi import UploadFile, File
+import tempfile
+
+
+from tools.casfinder import run_casfinder
+
 from fastapi import FastAPI, Query
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -21,6 +27,17 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+@app.post("/api/casfinder")
+async def casfinder_api(file: UploadFile = File(...)):
+    # Save upload to a temp file
+    suffix = os.path.splitext(file.filename or "")[1] or ".fna"
+    with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
+        tmp.write(await file.read())
+        tmp_path = tmp.name
+
+    # Run CasFinder pipeline
+    result = run_casfinder(tmp_path)
+    return result
 
 # Serve UI
 app.mount("/frontend", StaticFiles(directory="frontend"), name="frontend")
