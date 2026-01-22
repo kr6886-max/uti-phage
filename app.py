@@ -1,38 +1,52 @@
 """
-Clean app.py (organized + CasFinder route included)
+Clean app.py for your UTI-phage FastAPI service (includes CasFinder endpoint)
 
-Notes:
-- Put ALL API routes before StaticFiles mount.
-- Make sure you have this file too (can be empty): tools/__init__.py
-- Your CasFinder file should be: tools/casfinder.py with run_casfinder()
+✅ Keeps your existing endpoints:
+- GET /
+- GET /ui
+- GET /bacteria
+- GET /predict
+- GET /crispr_check_batch
+
+✅ Adds:
+- POST /api/casfinder (file upload)
+
+✅ IMPORTANT:
+- This file assumes these exist in your repo:
+  - crispr_utils.py  (with the 3 functions imported below)
+  - tools/casfinder.py (with run_casfinder)
+  - frontend/index.html (for /ui)
+  - bacteria_list.txt (for /bacteria)
+
+If your old /predict or /crispr_check_batch had custom logic, paste that logic
+inside the placeholders in those functions.
 """
 
 from __future__ import annotations
 
 import os
 import tempfile
-from typing import Optional
+from typing import List
 
 import pandas as pd
-from fastapi import FastAPI, File, Query, UploadFile
+from fastapi import FastAPI, File, HTTPException, Query, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-# ✅ Your existing utilities (already in your repo)
+# ---- your existing utilities (already in your repo) ----
 from crispr_utils import (  # type: ignore
+    crispr_match_count_from_spacers,
     load_phage_sequence_by_id,
     load_spacers_from_cache,
-    crispr_match_count_from_spacers,
 )
 
-# ✅ New: CasFinder runner
+# ---- CasFinder runner ----
 from tools.casfinder import run_casfinder  # type: ignore
-
 
 app = FastAPI(title="UTI Bacteria → Best Phage Finder", version="1.0.0")
 
-# CORS (keep permissive unless you want to lock it down)
+# CORS (keep permissive for your demo)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -41,9 +55,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ---------------------------
-# Basic routes
-# ---------------------------
+# -------------------------
+# BASIC ROUTES
+# -------------------------
 
 @app.get("/")
 def home():
@@ -52,22 +66,23 @@ def home():
 
 @app.get("/ui")
 def ui():
-    # Your frontend entrypoint
+    # UI entrypoint
     return FileResponse("frontend/index.html")
 
 
-# ---------------------------
-# Existing API endpoints (keep these)
-# ---------------------------
+# -------------------------
+# EXISTING ENDPOINTS
+# -------------------------
 
 @app.get("/bacteria")
 def list_bacteria():
     """
-    Returns bacteria list from bacteria_list.txt (adjust if your logic differs)
+    Reads bacteria_list.txt and returns a list.
     """
     path = "bacteria_list.txt"
     if not os.path.exists(path):
         return {"bacteria": [], "warning": "bacteria_list.txt not found"}
+
     with open(path, "r", encoding="utf-8") as f:
         items = [line.strip() for line in f if line.strip()]
     return {"bacteria": items}
@@ -79,12 +94,10 @@ def predict(
     top_k: int = Query(10, ge=1, le=100, description="Number of top phages"),
 ):
     """
-    Keep your current logic here. This is a CLEAN placeholder.
-
-    If you already have working code for /predict in your current app.py,
-    copy that logic into this function body.
+    PLACEHOLDER (clean).
+    If your old app.py had real prediction logic, paste it here.
     """
-    # TODO: paste your existing /predict logic here
+    # TODO: paste your existing prediction logic here
     return {"bacteria": bacteria, "top_k": top_k, "results": []}
 
 
@@ -94,37 +107,59 @@ def crispr_check_batch(
     phage_ids: str = Query(..., description="Comma-separated phage IDs"),
 ):
     """
-    Keep your current logic here. This is a CLEAN placeholder.
+    PLACEHOLDER (clean).
+    If your old app.py had real CRISPR batch logic, paste it here.
 
-    If you already have working code for /crispr_check_batch in your current app.py,
-    copy that logic into this function body.
+    Below is a simple example using your crispr_utils helpers.
     """
-    ids = [x.strip() for x in phage_ids.split(",") if x.strip()]
-    # TODO: paste your existing CRISPR batch logic here
-    return {"bacteria": bacteria, "phage_ids": ids, "results": []}
+    ids: List[str] = [x.strip() for x in phage_ids.split(",") if x.strip()]
+
+    # Example logic (safe + minimal):
+    # - loads spacers for bacteria from cache
+    # - counts matches per phage
+    try:
+        spacers = load_spacers_from_cache(bacteria)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Failed to load spacers: {e}")
+
+    results = []
+    for pid in ids:
+        try:
+            phage_seq = load_phage_sequence_by_id(pid)
+            matches = crispr_match_count_from_spacers(spacers, phage_seq)
+            results.append({"phage_id": pid, "matches": matches})
+        except Exception as e:
+            results.append({"phage_id": pid, "error": str(e)})
+
+    return {"bacteria": bacteria, "results": results}
 
 
-# ---------------------------
-# ✅ NEW: CasFinder API endpoint
-# ---------------------------
+# -------------------------
+# ✅ CASFINDER ENDPOINT
+# -------------------------
 
 @app.post("/api/casfinder")
 async def casfinder_api(file: UploadFile = File(...)):
     """
     Upload a bacterial genome FASTA (.fna/.fa/.fasta).
-    Runs: Prodigal -> MacSyFinder (CasFinder models)
+    Runs Prodigal -> MacSyFinder (CasFinder models).
     Returns job_id + list of output files.
     """
     suffix = os.path.splitext(file.filename or "")[1] or ".fna"
+
     with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
         tmp.write(await file.read())
         tmp_path = tmp.name
 
-    return run_casfinder(tmp_path)
+    try:
+        return run_casfinder(tmp_path)
+    except Exception as e:
+        # show real error in Swagger instead of just "Internal Server Error"
+        raise HTTPException(status_code=500, detail=str(e))
 
 
-# ---------------------------
-# Static frontend mount (ALWAYS LAST)
-# ---------------------------
+# -------------------------
+# STATIC FILES (ALWAYS LAST)
+# -------------------------
 
 app.mount("/frontend", StaticFiles(directory="frontend"), name="frontend")
